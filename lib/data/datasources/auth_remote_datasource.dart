@@ -8,17 +8,23 @@ class AuthRemoteDatasource {
 
   AuthRemoteDatasource(this.dio);
 
-  Future<AuthModel> login(String email, String password) async {
-    final response = await dio.post(
-      ApiConstants.login,
-      data: {
-        "email": email,
-        "password": password,
-      },
-    );
+Future<AuthModel> login(String email, String password) async {
 
-    return AuthModel.fromJson(response.data);
-  }
+  final response = await dio.post(
+    ApiConstants.login,
+
+    data: {
+      "username": email,
+      "password": password,
+    },
+
+    options: Options(
+      contentType: Headers.formUrlEncodedContentType,
+    ),
+  );
+
+  return AuthModel.fromJson(response.data);
+}
 
   Future<void> register(RegisterModel model) async {
     await dio.post(

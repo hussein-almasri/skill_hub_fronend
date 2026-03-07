@@ -17,5 +17,13 @@ class DioClient {
     );
 
     dio.interceptors.add(AuthInterceptor(SecureStorage()));
+
+    // هذا مهم حتى نرى الأخطاء
+    dio.interceptors.add(
+      LogInterceptor(
+        requestBody: true,
+        responseBody: true,
+      ),
+    );
   }
 }

@@ -17,34 +17,40 @@ class AuthCubit extends Cubit<AuthState> {
   ) : super(AuthInitial());
 
   Future<void> login(String email, String password) async {
-    try {
-      emit(AuthLoading());
+  try {
+    emit(AuthLoading());
 
-      final auth = await loginUseCase(email, password);
+   final auth = await loginUseCase(email, password);
 
-      await storage.saveToken(auth.accessToken);
+    await storage.saveToken(auth.accessToken);
 
-      emit(AuthAuthenticated());
-    } catch (e) {
-      emit(AuthError("Login failed"));
-    }
+    emit(AuthAuthenticated());
+
+  } catch (e) {
+    emit(AuthError("Login failed"));
   }
+}
 
   Future<void> register(
-    String username,
-    String email,
-    String password,
-  ) async {
-    try {
-      emit(AuthLoading());
+  String username,
+  String email,
+  String password,
+) async {
+  try {
+    emit(AuthLoading());
 
-      await registerUseCase(username, email, password);
+    await registerUseCase(username, email, password);
 
-      emit(AuthRegistered());
-    } catch (e) {
-      emit(AuthError("Register failed"));
-    }
+    // تسجيل دخول تلقائي بعد التسجيل
+    final auth = await loginUseCase(email, password);
+
+    await storage.saveToken(auth.accessToken);
+
+    emit(AuthAuthenticated());
+  } catch (e) {
+    emit(AuthError("Register failed"));
   }
+}
 
   Future<void> checkAuth() async {
     final token = await storage.getToken();

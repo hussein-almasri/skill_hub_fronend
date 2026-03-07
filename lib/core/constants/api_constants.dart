@@ -1,5 +1,6 @@
 class ApiConstants {
-  static const String baseUrl = "http://10.0.2.2:8000";
+static const String baseUrl = "http://192.168.1.214:8000";
+
 
   static const String login = "/auth/login";
   static const String register = "/auth/register";
@@ -11,4 +12,8 @@ class ApiConstants {
 
   static const String profile = "/users/me";
   static const String users = "/users";
+
+ static const String leaderboard = "/leaderboard";
+
+  static const String getMe = "/users/me";
 }
