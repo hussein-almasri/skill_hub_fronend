@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:skill_hub_fronend/presentation/screens/ashboard_screen.dart';
+import 'package:skill_hub_fronend/presentation/screens/dashboard_screen.dart';
 
 import '../cubits/auth_cubit.dart';
 import '../cubits/auth_state.dart';
