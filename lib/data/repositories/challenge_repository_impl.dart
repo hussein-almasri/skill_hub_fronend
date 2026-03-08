@@ -12,4 +12,9 @@ class ChallengeRepositoryImpl implements ChallengeRepository {
   Future<List<Challenge>> getChallenges() {
     return remoteDatasource.getChallenges();
   }
+  @override
+Future<Challenge> getChallengeById(int id) async {
+  return await remoteDatasource.getChallengeById(id);
+}
+  
 }

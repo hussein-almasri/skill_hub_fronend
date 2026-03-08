@@ -15,4 +15,12 @@ class ChallengeRemoteDatasource {
 
     return data.map((e) => ChallengeModel.fromJson(e)).toList();
   }
+  Future<ChallengeModel> getChallengeById(int id) async {
+
+  final response = await dio.get(
+    "${ApiConstants.challengeDetails}$id",
+  );
+
+  return ChallengeModel.fromJson(response.data);
+}
 }
