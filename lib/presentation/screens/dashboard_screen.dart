@@ -27,6 +27,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+
+    // تحميل بيانات المستخدم لمعرفة إذا كان admin
+    context.read<UserCubit>().fetchMe();
+  }
+
+  @override
   Widget build(BuildContext context) {
 
     return Scaffold(
@@ -38,7 +46,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
           BlocBuilder<UserCubit, UserState>(
             builder: (context, state) {
 
-              if (state is UserLoaded && state.user.role == "admin") {
+             final userCubit = context.read<UserCubit>();
+              if (userCubit.currentUser?.role == "admin"){
 
                 return Padding(
                   padding: const EdgeInsets.only(right: 10),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../cubits/admin_cubit.dart';
+import '../cubits/challenges_cubit.dart';
 import '../../data/models/create_challenge_model.dart';
 
 class CreateChallengeScreen extends StatefulWidget {
@@ -19,6 +20,7 @@ class _CreateChallengeScreenState extends State<CreateChallengeScreen> {
   final difficultyController = TextEditingController();
   final pointsController = TextEditingController();
   final categoryController = TextEditingController();
+  final flagController = TextEditingController(); // 🔹 الجديد
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +40,9 @@ class _CreateChallengeScreenState extends State<CreateChallengeScreen> {
 
             if (state is AdminSuccess) {
 
+              /// تحديث قائمة التحديات
+              context.read<ChallengesCubit>().fetchChallenges();
+
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text("Challenge created"),
@@ -47,62 +52,92 @@ class _CreateChallengeScreenState extends State<CreateChallengeScreen> {
               Navigator.pop(context);
             }
 
+            if (state is AdminError) {
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(state.message),
+                ),
+              );
+
+            }
+
           },
 
           builder: (context, state) {
 
-            return Column(
+            if (state is AdminLoading) {
 
-              children: [
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
 
-                TextField(
-                  controller: titleController,
-                  decoration: const InputDecoration(labelText: "Title"),
-                ),
+            }
 
-                TextField(
-                  controller: descriptionController,
-                  decoration: const InputDecoration(labelText: "Description"),
-                ),
+            return SingleChildScrollView(
 
-                TextField(
-                  controller: difficultyController,
-                  decoration: const InputDecoration(labelText: "Difficulty"),
-                ),
+              child: Column(
 
-                TextField(
-                  controller: pointsController,
-                  decoration: const InputDecoration(labelText: "Points"),
-                ),
+                children: [
 
-                TextField(
-                  controller: categoryController,
-                  decoration: const InputDecoration(labelText: "Category"),
-                ),
+                  TextField(
+                    controller: titleController,
+                    decoration: const InputDecoration(labelText: "Title"),
+                  ),
 
-                const SizedBox(height: 20),
+                  TextField(
+                    controller: descriptionController,
+                    decoration: const InputDecoration(labelText: "Description"),
+                  ),
 
-                ElevatedButton(
+                  TextField(
+                    controller: difficultyController,
+                    decoration: const InputDecoration(labelText: "Difficulty"),
+                  ),
 
-                  onPressed: () {
+                  TextField(
+                    controller: pointsController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(labelText: "Points"),
+                  ),
 
-                    final model = CreateChallengeModel(
-                      title: titleController.text,
-                      description: descriptionController.text,
-                      difficulty: difficultyController.text,
-                      points: int.parse(pointsController.text),
-                      category: categoryController.text,
-                    );
+                  TextField(
+                    controller: categoryController,
+                    decoration: const InputDecoration(labelText: "Category"),
+                  ),
 
-                    context.read<AdminCubit>().createChallenge(model);
+                  /// 🔹 حقل الفلاق الجديد
+                  TextField(
+                    controller: flagController,
+                    decoration: const InputDecoration(labelText: "Flag"),
+                  ),
 
-                  },
+                  const SizedBox(height: 20),
 
-                  child: const Text("Create"),
+                  ElevatedButton(
 
-                )
+                    onPressed: () {
 
-              ],
+                      final model = CreateChallengeModel(
+                        title: titleController.text,
+                        description: descriptionController.text,
+                        difficulty: difficultyController.text,
+                        points: int.tryParse(pointsController.text) ?? 0,
+                        category: categoryController.text,
+                        flag: flagController.text, // 🔹 الجديد
+                      );
+
+                      context.read<AdminCubit>().createChallenge(model);
+
+                    },
+
+                    child: const Text("Create"),
+
+                  )
+
+                ],
+
+              ),
 
             );
 

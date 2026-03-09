@@ -10,20 +10,35 @@ class AdminRemoteDatasource {
 
   Future<void> createChallenge(CreateChallengeModel model) async {
 
-    await dio.post(
-      ApiConstants.challenges,
-      data: model.toJson(),
-    );
+    try {
+
+      await dio.post(
+        "${ApiConstants.challenges}/",
+        data: model.toJson(),
+      );
+
+    } on DioException catch (e) {
+
+      throw Exception(e.response?.data ?? "Failed to create challenge");
+
+    }
 
   }
+
   Future<void> deleteChallenge(int id) async {
 
-  await dio.delete(
-    "${ApiConstants.challenges}/$id",
-  );
+    try {
 
-}
+      await dio.delete(
+        "${ApiConstants.challenges}/$id",
+      );
 
+    } on DioException catch (e) {
 
+      throw Exception(e.response?.data ?? "Failed to delete challenge");
+
+    }
+
+  }
 
 }

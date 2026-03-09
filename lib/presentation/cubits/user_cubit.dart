@@ -39,6 +39,8 @@ class UserCubit extends Cubit<UserState> {
   final GetMeUseCase getMeUseCase;
   final GetUserStatsUseCase getStatsUseCase;
 
+  User? currentUser;
+
   UserCubit(
     this.getMeUseCase,
     this.getStatsUseCase,
@@ -51,6 +53,8 @@ class UserCubit extends Cubit<UserState> {
       emit(UserLoading());
 
       final user = await getMeUseCase();
+
+      currentUser = user;
 
       emit(UserLoaded(user));
 
@@ -69,6 +73,8 @@ class UserCubit extends Cubit<UserState> {
     try {
 
       final user = await getMeUseCase();
+
+      currentUser = user;
 
       emit(UserLoaded(user));
 

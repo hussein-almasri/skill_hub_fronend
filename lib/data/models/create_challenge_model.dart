@@ -5,6 +5,7 @@ class CreateChallengeModel {
   final String difficulty;
   final int points;
   final String category;
+  final String flag;
 
   CreateChallengeModel({
     required this.title,
@@ -12,6 +13,7 @@ class CreateChallengeModel {
     required this.difficulty,
     required this.points,
     required this.category,
+    required this.flag,
   });
 
   Map<String, dynamic> toJson() {
@@ -21,6 +23,7 @@ class CreateChallengeModel {
       "difficulty": difficulty,
       "points": points,
       "category": category,
+      "flag": flag,
     };
   }
 }
