@@ -20,6 +20,9 @@ class ChallengesCubit extends Cubit<ChallengesState> {
 
   final GetChallengesUseCase getChallengesUseCase;
 
+  /// solved challenges ids
+  final Set<int> solvedChallenges = {};
+
   ChallengesCubit(this.getChallengesUseCase) : super(ChallengesInitial());
 
   Future<void> fetchChallenges() async {

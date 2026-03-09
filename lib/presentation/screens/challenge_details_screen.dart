@@ -1,16 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../domain/entities/challenge.dart';
+import '../cubits/challenge_details_cubit.dart';
 import '../cubits/submission_cubit.dart';
+import '../cubits/challenges_cubit.dart';
+import '../cubits/leaderboard_cubit.dart';
+import '../cubits/hints_cubit.dart';
+import '../../domain/entities/challenge.dart';
 
-class ChallengeDetailsScreen extends StatelessWidget {
+class ChallengeDetailsScreen extends StatefulWidget {
 
-  final Challenge challenge;
+  final int challengeId;
 
-  ChallengeDetailsScreen({super.key, required this.challenge});
+  const ChallengeDetailsScreen({
+    super.key,
+    required this.challengeId,
+  });
+
+  @override
+  State<ChallengeDetailsScreen> createState() => _ChallengeDetailsScreenState();
+}
+
+class _ChallengeDetailsScreenState extends State<ChallengeDetailsScreen> {
 
   final flagController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+
+    context.read<ChallengeDetailsCubit>().fetchChallenge(widget.challengeId);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,108 +38,257 @@ class ChallengeDetailsScreen extends StatelessWidget {
     return Scaffold(
 
       appBar: AppBar(
-        title: Text(challenge.title),
+        title: const Text("Challenge"),
       ),
 
-      body: Padding(
-        padding: const EdgeInsets.all(20),
+      body: BlocBuilder<ChallengeDetailsCubit, ChallengeDetailsState>(
+        builder: (context, state) {
 
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          if (state is ChallengeDetailsLoading) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
 
-          children: [
+          if (state is ChallengeDetailsLoaded) {
 
-            Text(
-              challenge.title,
-              style: const TextStyle(fontSize: 24),
-            ),
+            final Challenge challenge = state.challenge;
 
-            const SizedBox(height: 10),
+            return Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
 
-            Text(
-              challenge.description,
-            ),
-
-            const SizedBox(height: 20),
-
-            Text("Difficulty: ${challenge.difficulty}"),
-            Text("Points: ${challenge.points}"),
-
-            const SizedBox(height: 30),
-
-            TextField(
-
-              controller: flagController,
-
-              style: const TextStyle(
-                fontFamily: "monospace",
-              ),
-
-              decoration: const InputDecoration(
-
-                labelText: "Enter Flag",
-
-                prefixText: "flag> ",
-
-                border: OutlineInputBorder(),
-
-              ),
-
-            ),
-
-            const SizedBox(height: 20),
-
-            BlocConsumer<SubmissionCubit, SubmissionState>(
-
-              listener: (context, state) {
-
-                if (state is SubmissionSuccess) {
-
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("Correct Flag 🎉"),
+                  /// Title
+                  Text(
+                    challenge.title,
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
                     ),
-                  );
+                  ),
 
-                }
+                  const SizedBox(height: 10),
 
-                if (state is SubmissionError) {
+                  /// Difficulty
+                  Row(
+                    children: [
 
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("Wrong Flag ❌"),
+                      Chip(
+                        label: Text(
+                          challenge.difficulty,
+                        ),
+                      ),
+
+                      const SizedBox(width: 10),
+
+                      Chip(
+                        label: Text(
+                          "${challenge.points} pts",
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  /// Description
+                  Text(
+                    challenge.description,
+                    style: const TextStyle(fontSize: 16),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  /// Hints Button
+                  ElevatedButton(
+
+                    onPressed: () {
+
+                      context.read<HintsCubit>().fetchHints(widget.challengeId);
+
+                      showModalBottomSheet(
+
+                        context: context,
+
+                        builder: (_) {
+
+                          return BlocBuilder<HintsCubit, HintsState>(
+
+                            builder: (context, state) {
+
+                              if (state is HintsLoading) {
+                                return const Center(
+                                  child: CircularProgressIndicator(),
+                                );
+                              }
+
+                              if (state is HintsLoaded) {
+
+                                return ListView.builder(
+
+                                  itemCount: state.hints.length,
+
+                                  itemBuilder: (context, index) {
+
+                                    final hint = state.hints[index];
+
+                                    return ListTile(
+
+                                      title: Text("Hint ${index + 1}"),
+                                      subtitle: Text("Cost: ${hint.cost}"),
+
+                                      onTap: () {
+
+                                        showDialog(
+
+                                          context: context,
+
+                                          builder: (_) => AlertDialog(
+
+                                            title: const Text("Hint"),
+
+                                            content: Text(hint.hintText),
+
+                                          ),
+
+                                        );
+
+                                      },
+
+                                    );
+
+                                  },
+
+                                );
+
+                              }
+
+                              return const SizedBox();
+
+                            },
+
+                          );
+
+                        },
+
+                      );
+
+                    },
+
+                    child: const Text("Hints"),
+
+                  ),
+
+                  const SizedBox(height: 30),
+
+                  /// Flag Input
+                  TextField(
+                    controller: flagController,
+                    decoration: const InputDecoration(
+                      labelText: "Enter Flag",
+                      border: OutlineInputBorder(),
                     ),
-                  );
+                  ),
 
-                }
+                  const SizedBox(height: 20),
 
-              },
+                  /// Submit Button
+                  BlocConsumer<SubmissionCubit, SubmissionState>(
 
-              builder: (context, state) {
+                    listener: (context, state) {
 
-                if (state is SubmissionLoading) {
-                  return const CircularProgressIndicator();
-                }
+                      if (state is SubmissionSuccess) {
 
-                return ElevatedButton(
+                        context.read<ChallengesCubit>()
+                            .solvedChallenges
+                            .add(state.challengeId);
 
-                  onPressed: () {
+                        /// تحديث leaderboard
+                        context.read<LeaderboardCubit>().fetchLeaderboard();
 
-                    context.read<SubmissionCubit>().submitFlag(
-                      challenge.id,
-                      flagController.text,
-                    );
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            backgroundColor: Colors.green,
+                            content: Text("Correct Flag 🎉"),
+                          ),
+                        );
 
-                  },
+                      }
 
-                  child: const Text("Submit Flag"),
-                );
+                      if (state is SubmissionError) {
 
-              },
-            )
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            backgroundColor: Colors.red,
+                            content: Text("Wrong Flag ❌"),
+                          ),
+                        );
 
-          ],
-        ),
+                      }
+
+                    },
+
+                    builder: (context, state) {
+
+                      if (state is SubmissionLoading) {
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      }
+
+                      return SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+
+                          onPressed: () {
+
+                            final solved = context
+                                .read<ChallengesCubit>()
+                                .solvedChallenges
+                                .contains(widget.challengeId);
+
+                            if (solved) {
+
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  backgroundColor: Colors.orange,
+                                  content: Text("Challenge already solved ✔"),
+                                ),
+                              );
+
+                              return;
+                            }
+
+                            final flag = flagController.text;
+
+                            context.read<SubmissionCubit>().submit(
+                              widget.challengeId,
+                              flag,
+                            );
+
+                          },
+
+                          child: const Text("Submit Flag"),
+                        ),
+                      );
+
+                    },
+                  )
+                ],
+              ),
+            );
+          }
+
+          if (state is ChallengeDetailsError) {
+            return Center(
+              child: Text(state.message),
+            );
+          }
+
+          return const SizedBox();
+        },
       ),
     );
   }

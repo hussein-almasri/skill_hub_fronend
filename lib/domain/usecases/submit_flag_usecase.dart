@@ -1,8 +1,8 @@
-import '../repositories/submission_repository.dart';
+import '../../data/repositories/submission_repository_impl.dart';
 
 class SubmitFlagUseCase {
 
-  final SubmissionRepository repository;
+  final SubmissionRepositoryImpl repository;
 
   SubmitFlagUseCase(this.repository);
 
@@ -11,4 +11,5 @@ class SubmitFlagUseCase {
     return repository.submitFlag(challengeId, flag);
 
   }
+
 }

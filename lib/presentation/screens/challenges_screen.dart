@@ -33,15 +33,22 @@ class ChallengesScreen extends StatelessWidget {
 
                 final challenge = state.challenges[index];
 
+                /// هل التحدي محلول
+                final solved = context.read<ChallengesCubit>()
+                    .solvedChallenges
+                    .contains(challenge.id);
+
                 return ChallengeCard(
                   challenge: challenge,
+                  solved: solved,
+
                   onTap: () {
 
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (_) => ChallengeDetailsScreen(
-                          challenge: challenge,
+                          challengeId: challenge.id,
                         ),
                       ),
                     );

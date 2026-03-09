@@ -16,4 +16,5 @@ static const String baseUrl = "http://192.168.1.214:8000";
  static const String leaderboard = "/leaderboard";
 
   static const String getMe = "/users/me";
+  static const String hints = "/hints";
 }

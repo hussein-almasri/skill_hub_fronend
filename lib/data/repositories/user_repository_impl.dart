@@ -1,3 +1,5 @@
+import 'package:skill_hub_fronend/data/models/user_stats_model.dart';
+
 import '../../domain/entities/user.dart';
 import '../../domain/repositories/user_repository.dart';
 import '../datasources/user_remote_datasource.dart';
@@ -14,5 +16,9 @@ class UserRepositoryImpl implements UserRepository {
     return remoteDatasource.getMe();
 
   }
+  
+  Future<UserStatsModel> getStats() async {
+  return await remoteDatasource.getStats();
+}
 
 }

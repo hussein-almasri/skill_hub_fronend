@@ -3,14 +3,24 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../cubits/user_cubit.dart';
 
-class ProfileScreen extends StatelessWidget {
-
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
 
-    context.read<UserCubit>().fetchUser();
+class _ProfileScreenState extends State<ProfileScreen> {
+
+  @override
+  void initState() {
+    super.initState();
+
+    context.read<UserCubit>().fetchStats();
+  }
+
+  @override
+  Widget build(BuildContext context) {
 
     return Scaffold(
 
@@ -18,53 +28,68 @@ class ProfileScreen extends StatelessWidget {
         title: const Text("Profile"),
       ),
 
-      body: BlocBuilder<UserCubit, UserState>(
+      body: Padding(
+        padding: const EdgeInsets.all(20),
 
-        builder: (context, state) {
+        child: BlocBuilder<UserCubit, UserState>(
+          builder: (context, state) {
 
-          if (state is UserLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
+            if (state is UserStatsLoaded) {
 
-          if (state is UserLoaded) {
+              final stats = state.stats;
 
-            final user = state.user;
-
-            return Padding(
-              padding: const EdgeInsets.all(20),
-
-              child: Column(
+              return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-
                 children: [
 
                   Text(
-                    user.username,
-                    style: const TextStyle(fontSize: 24),
+                    stats.username,
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
 
-                  const SizedBox(height: 10),
+                  Text(stats.email),
 
-                  Text(user.email),
+                  const SizedBox(height: 20),
 
-                  const SizedBox(height: 10),
+                  Card(
+                    child: ListTile(
+                      title: const Text("Points"),
+                      trailing: Text("${stats.points}"),
+                    ),
+                  ),
 
-                  Text("Role: ${user.role}"),
+                  Card(
+                    child: ListTile(
+                      title: const Text("Solved Challenges"),
+                      trailing: Text("${stats.solvedChallenges}"),
+                    ),
+                  ),
 
                 ],
-              ),
-            );
+              );
 
-          }
+            }
 
-          return const Center(child: Text("Error loading profile"));
+            if (state is UserLoading) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            }
 
-        },
+            if (state is UserError) {
+              return Center(
+                child: Text(state.message),
+              );
+            }
 
+            return const SizedBox();
+
+          },
+        ),
       ),
-
     );
-
   }
-
 }

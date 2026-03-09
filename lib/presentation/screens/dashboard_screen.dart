@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../cubits/user_cubit.dart';
 import 'challenges_screen.dart';
 import 'leaderboard_screen.dart';
 import 'profile_screen.dart';
+import 'admin_dashboard_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -27,6 +30,43 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
 
     return Scaffold(
+
+      appBar: AppBar(
+        title: const Text("SkillHub"),
+        actions: [
+
+          BlocBuilder<UserCubit, UserState>(
+            builder: (context, state) {
+
+              if (state is UserLoaded && state.user.role == "admin") {
+
+                return Padding(
+                  padding: const EdgeInsets.only(right: 10),
+                  child: ElevatedButton(
+
+                    onPressed: () {
+
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const AdminDashboardScreen(),
+                        ),
+                      );
+
+                    },
+
+                    child: const Text("Admin Panel"),
+                  ),
+                );
+              }
+
+              return const SizedBox();
+
+            },
+          ),
+
+        ],
+      ),
 
       body: pages[currentIndex],
 

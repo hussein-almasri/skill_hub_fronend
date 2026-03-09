@@ -1,14 +1,12 @@
-import '../../domain/repositories/submission_repository.dart';
 import '../datasources/submission_remote_datasource.dart';
 import '../models/submission_model.dart';
 
-class SubmissionRepositoryImpl implements SubmissionRepository {
+class SubmissionRepositoryImpl {
 
-  final SubmissionRemoteDatasource remoteDatasource;
+  final SubmissionRemoteDatasource remote;
 
-  SubmissionRepositoryImpl(this.remoteDatasource);
+  SubmissionRepositoryImpl(this.remote);
 
-  @override
   Future<void> submitFlag(int challengeId, String flag) {
 
     final model = SubmissionModel(
@@ -16,6 +14,8 @@ class SubmissionRepositoryImpl implements SubmissionRepository {
       submittedFlag: flag,
     );
 
-    return remoteDatasource.submitFlag(model);
+    return remote.submitFlag(model);
+
   }
+
 }
