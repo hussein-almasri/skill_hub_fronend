@@ -1,5 +1,4 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'user_state.dart';
 import '../../domain/entities/user.dart';
 import '../../domain/usecases/get_me_usecase.dart';
 import '../../domain/usecases/get_user_stats_usecase.dart';
