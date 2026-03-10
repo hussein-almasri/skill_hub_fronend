@@ -4,10 +4,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../cubits/admin_cubit.dart';
 import '../cubits/challenges_cubit.dart';
 import '../../data/models/create_challenge_model.dart';
+import '../../domain/entities/challenge.dart';
 
 class CreateChallengeScreen extends StatefulWidget {
 
-  const CreateChallengeScreen({super.key});
+  final Challenge? challenge;
+
+  const CreateChallengeScreen({
+    super.key,
+    this.challenge,
+  });
 
   @override
   State<CreateChallengeScreen> createState() => _CreateChallengeScreenState();
@@ -20,15 +26,32 @@ class _CreateChallengeScreenState extends State<CreateChallengeScreen> {
   final difficultyController = TextEditingController();
   final pointsController = TextEditingController();
   final categoryController = TextEditingController();
-  final flagController = TextEditingController(); // 🔹 الجديد
+  final flagController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (widget.challenge != null) {
+
+      titleController.text = widget.challenge!.title;
+      descriptionController.text = widget.challenge!.description;
+      difficultyController.text = widget.challenge!.difficulty;
+      pointsController.text = widget.challenge!.points.toString();
+      categoryController.text = widget.challenge!.category;
+
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
 
+    final isEdit = widget.challenge != null;
+
     return Scaffold(
 
       appBar: AppBar(
-        title: const Text("Create Challenge"),
+        title: Text(isEdit ? "Edit Challenge" : "Create Challenge"),
       ),
 
       body: Padding(
@@ -40,12 +63,15 @@ class _CreateChallengeScreenState extends State<CreateChallengeScreen> {
 
             if (state is AdminSuccess) {
 
-              /// تحديث قائمة التحديات
               context.read<ChallengesCubit>().fetchChallenges();
 
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text("Challenge created"),
+                SnackBar(
+                  content: Text(
+                    isEdit
+                        ? "Challenge updated"
+                        : "Challenge created",
+                  ),
                 ),
               );
 
@@ -106,11 +132,12 @@ class _CreateChallengeScreenState extends State<CreateChallengeScreen> {
                     decoration: const InputDecoration(labelText: "Category"),
                   ),
 
-                  /// 🔹 حقل الفلاق الجديد
-                  TextField(
-                    controller: flagController,
-                    decoration: const InputDecoration(labelText: "Flag"),
-                  ),
+                  /// flag يظهر فقط عند الإنشاء
+                  if (!isEdit)
+                    TextField(
+                      controller: flagController,
+                      decoration: const InputDecoration(labelText: "Flag"),
+                    ),
 
                   const SizedBox(height: 20),
 
@@ -118,20 +145,39 @@ class _CreateChallengeScreenState extends State<CreateChallengeScreen> {
 
                     onPressed: () {
 
-                      final model = CreateChallengeModel(
-                        title: titleController.text,
-                        description: descriptionController.text,
-                        difficulty: difficultyController.text,
-                        points: int.tryParse(pointsController.text) ?? 0,
-                        category: categoryController.text,
-                        flag: flagController.text, // 🔹 الجديد
-                      );
+                      if (isEdit) {
 
-                      context.read<AdminCubit>().createChallenge(model);
+                        context.read<AdminCubit>().updateChallenge(
+                          widget.challenge!.id,
+                          {
+                            "title": titleController.text,
+                            "description": descriptionController.text,
+                            "difficulty": difficultyController.text,
+                            "points": int.tryParse(pointsController.text) ?? 0,
+                            "category": categoryController.text,
+                          },
+                        );
+
+                      } else {
+
+                        final model = CreateChallengeModel(
+                          title: titleController.text,
+                          description: descriptionController.text,
+                          difficulty: difficultyController.text,
+                          points: int.tryParse(pointsController.text) ?? 0,
+                          category: categoryController.text,
+                          flag: flagController.text,
+                        );
+
+                        context.read<AdminCubit>().createChallenge(model);
+
+                      }
 
                     },
 
-                    child: const Text("Create"),
+                    child: Text(
+                      isEdit ? "Update Challenge" : "Create",
+                    ),
 
                   )
 

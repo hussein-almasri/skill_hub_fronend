@@ -33,6 +33,31 @@ class AdminCubit extends Cubit<AdminState> {
 
   }
 
+  /// 🔹 Update Challenge
+  Future<void> updateChallenge(
+    int id,
+    Map<String, dynamic> data,
+  ) async {
+
+    emit(AdminLoading());
+
+    try {
+
+      await createChallengeUseCase.updateChallenge(
+        id,
+        data,
+      );
+
+      emit(AdminSuccess());
+
+    } catch (e) {
+
+      emit(AdminError("Failed to update challenge"));
+
+    }
+
+  }
+
   Future<void> deleteChallenge(int id) async {
 
     emit(AdminLoading());
@@ -50,5 +75,28 @@ class AdminCubit extends Cubit<AdminState> {
     }
 
   }
+  Future<void> createHint(
+  int challengeId,
+  String hintText,
+  int cost,
+) async {
+
+  try {
+
+    await createChallengeUseCase.repository.remote.dio.post(
+      "/hints/$challengeId",
+      data: {
+        "hint_text": hintText,
+        "cost": cost,
+      },
+    );
+
+  } catch (e) {
+
+    emit(AdminError("Failed to create hint"));
+
+  }
+
+}
 
 }

@@ -5,7 +5,7 @@ class Challenge {
   final String difficulty;
   final int points;
   final String category;
-
+  final int solvedCount;
   Challenge({
     required this.id,
     required this.title,
@@ -13,5 +13,6 @@ class Challenge {
     required this.difficulty,
     required this.points,
     required this.category,
+    this.solvedCount = 0,
   });
 }

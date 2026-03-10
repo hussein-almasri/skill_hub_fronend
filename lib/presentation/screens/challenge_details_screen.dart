@@ -6,6 +6,7 @@ import '../cubits/submission_cubit.dart';
 import '../cubits/challenges_cubit.dart';
 import '../cubits/leaderboard_cubit.dart';
 import '../cubits/hints_cubit.dart';
+import '../cubits/user_cubit.dart';
 import '../../domain/entities/challenge.dart';
 
 class ChallengeDetailsScreen extends StatefulWidget {
@@ -71,7 +72,7 @@ class _ChallengeDetailsScreenState extends State<ChallengeDetailsScreen> {
 
                   const SizedBox(height: 10),
 
-                  /// Difficulty
+                  /// Difficulty + Points
                   Row(
                     children: [
 
@@ -97,6 +98,17 @@ class _ChallengeDetailsScreenState extends State<ChallengeDetailsScreen> {
                   Text(
                     challenge.description,
                     style: const TextStyle(fontSize: 16),
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  /// Solved Count
+                  Text(
+                    "Solved by ${challenge.solvedCount} users",
+                    style: const TextStyle(
+                      color: Colors.grey,
+                      fontSize: 14,
+                    ),
                   ),
 
                   const SizedBox(height: 20),
@@ -137,22 +149,79 @@ class _ChallengeDetailsScreenState extends State<ChallengeDetailsScreen> {
                                     return ListTile(
 
                                       title: Text("Hint ${index + 1}"),
-                                      subtitle: Text("Cost: ${hint.cost}"),
 
-                                      onTap: () {
+                                      subtitle: Text(
+                                        hint.unlocked
+                                            ? "Unlocked"
+                                            : "Cost: ${hint.cost}",
+                                      ),
+
+                                      trailing: Icon(
+                                        hint.unlocked
+                                            ? Icons.check_circle
+                                            : Icons.lock,
+                                        color: hint.unlocked
+                                            ? Colors.green
+                                            : Colors.grey,
+                                      ),
+
+                                      onTap: () async {
+
+                                        if (hint.unlocked) {
+
+                                          showDialog(
+                                            context: context,
+                                            builder: (_) => AlertDialog(
+                                              title: const Text("Hint"),
+                                              content: Text(hint.hintText ?? ""),
+                                            ),
+                                          );
+
+                                          return;
+                                        }
 
                                         showDialog(
-
                                           context: context,
-
                                           builder: (_) => AlertDialog(
 
-                                            title: const Text("Hint"),
+                                            title: const Text("Unlock Hint"),
 
-                                            content: Text(hint.hintText),
+                                            content: Text(
+                                              "This hint costs ${hint.cost} points.\nDo you want to unlock it?",
+                                            ),
 
+                                            actions: [
+
+                                              TextButton(
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                },
+                                                child: const Text("Cancel"),
+                                              ),
+
+                                              ElevatedButton(
+                                                onPressed: () async {
+
+                                                  Navigator.pop(context);
+
+                                                  final hintText = await context
+                                                      .read<HintsCubit>()
+                                                      .unlockHint(hint.id);
+
+                                                  showDialog(
+                                                    context: context,
+                                                    builder: (_) => AlertDialog(
+                                                      title: const Text("Hint"),
+                                                      content: Text(hintText),
+                                                    ),
+                                                  );
+
+                                                },
+                                                child: const Text("Unlock"),
+                                              )
+
+                                            ],
                                           ),
-
                                         );
 
                                       },
@@ -202,11 +271,13 @@ class _ChallengeDetailsScreenState extends State<ChallengeDetailsScreen> {
                       if (state is SubmissionSuccess) {
 
                         context.read<ChallengesCubit>()
-                            .solvedChallenges
-                            .add(state.challengeId);
+                            .markSolved(state.challengeId);
 
-                        /// تحديث leaderboard
+                        /// Update leaderboard
                         context.read<LeaderboardCubit>().fetchLeaderboard();
+
+                        /// Update user points
+                        context.read<UserCubit>().fetchStats();
 
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(

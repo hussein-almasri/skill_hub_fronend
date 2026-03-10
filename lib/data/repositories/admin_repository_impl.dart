@@ -16,6 +16,14 @@ class AdminRepositoryImpl {
 
   return remote.deleteChallenge(id);
 
-}
+} Future<void> updateChallenge(
+    int id,
+    Map<String, dynamic> data,
+  ) {
+    return remote.updateChallenge(
+      id,
+      data,
+    );
+  }
 
 }

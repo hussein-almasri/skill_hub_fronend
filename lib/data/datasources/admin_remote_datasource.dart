@@ -40,5 +40,16 @@ class AdminRemoteDatasource {
     }
 
   }
+  Future<void> updateChallenge(
+  int id,
+  Map<String, dynamic> data,
+) async {
+
+  await dio.put(
+    "${ApiConstants.challenges}/$id",
+    data: data,
+  );
+
+}
 
 }

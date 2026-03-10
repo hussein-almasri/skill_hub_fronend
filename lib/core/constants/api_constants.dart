@@ -1,6 +1,5 @@
 class ApiConstants {
-static const String baseUrl = "http://192.168.1.214:8000";
-
+static const String baseUrl = "https://exceptionable-sean-flockless.ngrok-free.dev";
 
   static const String login = "/auth/login";
   static const String register = "/auth/register";

@@ -41,4 +41,15 @@ class ChallengesCubit extends Cubit<ChallengesState> {
 
     }
   }
+  void markSolved(int challengeId) {
+
+  solvedChallenges.add(challengeId);
+
+  if (state is ChallengesLoaded) {
+
+    emit(ChallengesLoaded((state as ChallengesLoaded).challenges));
+
+  }
+
+}
 }

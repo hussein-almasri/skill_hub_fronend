@@ -8,9 +8,17 @@ class CreateChallengeUseCase {
   CreateChallengeUseCase(this.repository);
 
   Future<void> call(CreateChallengeModel model) {
-
     return repository.createChallenge(model);
+  }
 
+  Future<void> updateChallenge(
+    int id,
+    Map<String, dynamic> data,
+  ) {
+    return repository.updateChallenge(
+      id,
+      data,
+    );
   }
 
 }

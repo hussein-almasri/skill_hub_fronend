@@ -15,12 +15,26 @@ class ChallengeRemoteDatasource {
 
     return data.map((e) => ChallengeModel.fromJson(e)).toList();
   }
+
   Future<ChallengeModel> getChallengeById(int id) async {
 
-  final response = await dio.get(
-    "${ApiConstants.challengeDetails}$id",
-  );
+    final response = await dio.get(
+      "${ApiConstants.challengeDetails}$id",
+    );
 
-  return ChallengeModel.fromJson(response.data);
-}
+    return ChallengeModel.fromJson(response.data);
+  }
+
+  /// 🔹 Update Challenge (للـ Admin Edit)
+  Future<void> updateChallenge(
+    int id,
+    Map<String, dynamic> data,
+  ) async {
+
+    await dio.put(
+      "${ApiConstants.challenges}/$id",
+      data: data,
+    );
+
+  }
 }

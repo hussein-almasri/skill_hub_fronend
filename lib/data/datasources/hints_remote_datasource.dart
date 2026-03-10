@@ -19,4 +19,15 @@ class HintsRemoteDatasource {
     return data.map((e) => HintModel.fromJson(e)).toList();
   }
 
+  /// 🔹 Unlock Hint
+  Future<String> unlockHint(int hintId) async {
+
+    final response = await dio.post(
+      "${ApiConstants.hints}/unlock/$hintId",
+    );
+
+    return response.data["hint_text"];
+
+  }
+
 }

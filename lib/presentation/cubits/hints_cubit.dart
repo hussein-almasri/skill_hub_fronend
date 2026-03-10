@@ -28,4 +28,13 @@ class HintsCubit extends Cubit<HintsState> {
 
   }
 
+  /// 🔹 Unlock Hint
+  Future<String> unlockHint(int hintId) async {
+
+    final result = await datasource.unlockHint(hintId);
+
+    return result;
+
+  }
+
 }
