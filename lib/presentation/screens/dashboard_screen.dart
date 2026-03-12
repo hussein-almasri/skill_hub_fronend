@@ -30,7 +30,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void initState() {
     super.initState();
 
-    // تحميل بيانات المستخدم لمعرفة إذا كان admin
     context.read<UserCubit>().fetchMe();
   }
 

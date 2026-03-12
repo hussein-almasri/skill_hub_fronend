@@ -25,7 +25,6 @@ class ChallengeRemoteDatasource {
     return ChallengeModel.fromJson(response.data);
   }
 
-  /// 🔹 Update Challenge (للـ Admin Edit)
   Future<void> updateChallenge(
     int id,
     Map<String, dynamic> data,

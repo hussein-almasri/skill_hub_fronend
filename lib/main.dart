@@ -11,6 +11,7 @@ import 'data/datasources/user_remote_datasource.dart';
 import 'data/datasources/challenge_remote_datasource.dart';
 import 'data/datasources/submission_remote_datasource.dart';
 import 'data/datasources/admin_remote_datasource.dart';
+import 'data/datasources/hints_remote_datasource.dart';
 
 import 'data/repositories/auth_repository_impl.dart';
 import 'data/repositories/leaderboard_repository_impl.dart';
@@ -38,6 +39,7 @@ import 'presentation/cubits/user_cubit.dart';
 import 'presentation/cubits/challenge_details_cubit.dart';
 import 'presentation/cubits/submission_cubit.dart';
 import 'presentation/cubits/admin_cubit.dart';
+import 'presentation/cubits/hints_cubit.dart';
 
 import 'presentation/screens/login_screen.dart';
 
@@ -53,14 +55,12 @@ class CTFApp extends StatelessWidget {
 
     final dio = DioClient().dio;
 
-    /// AUTH
     final authDatasource = AuthRemoteDatasource(dio);
     final authRepository = AuthRepositoryImpl(authDatasource);
 
     final loginUseCase = LoginUseCase(authRepository);
     final registerUseCase = RegisterUseCase(authRepository);
 
-    /// CHALLENGES
     final challengesDatasource = ChallengeRemoteDatasource(dio);
     final challengesRepository = ChallengeRepositoryImpl(challengesDatasource);
 
@@ -68,7 +68,6 @@ class CTFApp extends StatelessWidget {
     final getChallengeDetailsUseCase =
         GetChallengeDetailsUseCase(challengesRepository);
 
-    /// LEADERBOARD
     final leaderboardDatasource = LeaderboardRemoteDatasource(dio);
     final leaderboardRepository =
         LeaderboardRepositoryImpl(leaderboardDatasource);
@@ -76,21 +75,18 @@ class CTFApp extends StatelessWidget {
     final getLeaderboardUseCase =
         GetLeaderboardUseCase(leaderboardRepository);
 
-    /// USER
     final userDatasource = UserRemoteDatasource(dio);
     final userRepository = UserRepositoryImpl(userDatasource);
 
     final getMeUseCase = GetMeUseCase(userRepository);
     final getUserStatsUseCase = GetUserStatsUseCase(userRepository);
 
-    /// SUBMISSIONS
     final submissionDatasource = SubmissionRemoteDatasource(dio);
     final submissionRepository =
         SubmissionRepositoryImpl(submissionDatasource);
 
     final submitFlagUseCase = SubmitFlagUseCase(submissionRepository);
 
-    /// ADMIN
     final adminDatasource = AdminRemoteDatasource(dio);
     final adminRepository = AdminRepositoryImpl(adminDatasource);
 
@@ -99,6 +95,8 @@ class CTFApp extends StatelessWidget {
 
     final deleteChallengeUseCase =
         DeleteChallengeUseCase(adminRepository);
+
+    final hintsDatasource = HintsRemoteDatasource(dio);
 
     return MultiBlocProvider(
       providers: [
@@ -142,7 +140,12 @@ class CTFApp extends StatelessWidget {
           ),
         ),
 
-        /// ADMIN CUBIT
+        BlocProvider(
+          create: (_) => HintsCubit(
+            hintsDatasource,
+          ),
+        ),
+
         BlocProvider(
           create: (_) => AdminCubit(
             createChallengeUseCase,

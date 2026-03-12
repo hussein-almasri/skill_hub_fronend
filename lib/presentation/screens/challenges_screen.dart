@@ -35,7 +35,6 @@ class _ChallengesScreenState extends State<ChallengesScreen> {
       body: Column(
         children: [
 
-          /// 🔎 Search
           Padding(
             padding: const EdgeInsets.all(12),
             child: TextField(
@@ -57,7 +56,6 @@ class _ChallengesScreenState extends State<ChallengesScreen> {
             ),
           ),
 
-          /// 🔹 Filters
           SizedBox(
             height: 50,
             child: ListView(
@@ -92,7 +90,6 @@ class _ChallengesScreenState extends State<ChallengesScreen> {
 
                 if (state is ChallengesLoaded) {
 
-                  /// 🔹 فلترة التحديات
                   final filtered = state.challenges.where((challenge) {
 
                     final matchSearch =
@@ -156,7 +153,6 @@ class _ChallengesScreenState extends State<ChallengesScreen> {
     );
   }
 
-  /// 🔹 Filter Button Widget
   Widget filterChip(String category) {
 
     final selected = selectedCategory == category;

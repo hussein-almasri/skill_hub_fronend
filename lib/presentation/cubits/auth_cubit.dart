@@ -41,7 +41,6 @@ class AuthCubit extends Cubit<AuthState> {
 
     await registerUseCase(username, email, password);
 
-    // تسجيل دخول تلقائي بعد التسجيل
     final auth = await loginUseCase(email, password);
 
     await storage.saveToken(auth.accessToken);

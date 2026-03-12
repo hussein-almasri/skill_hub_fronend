@@ -33,7 +33,6 @@ class AdminCubit extends Cubit<AdminState> {
 
   }
 
-  /// 🔹 Update Challenge
   Future<void> updateChallenge(
     int id,
     Map<String, dynamic> data,

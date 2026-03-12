@@ -1,4 +1,4 @@
-package com.example.skill_hub_fronend
+package com.skillhub.app
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -52,7 +52,6 @@ class AdminChallengesScreen extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
 
-                        /// 🔹 Add Hint
                         IconButton(
                           icon: const Icon(Icons.lightbulb, color: Colors.amber),
                           onPressed: () {
@@ -119,7 +118,6 @@ class AdminChallengesScreen extends StatelessWidget {
                           },
                         ),
 
-                        /// Edit
                         IconButton(
                           icon: const Icon(Icons.edit),
                           onPressed: () {
@@ -136,7 +134,6 @@ class AdminChallengesScreen extends StatelessWidget {
                           },
                         ),
 
-                        /// Delete
                         IconButton(
                           icon: const Icon(Icons.delete, color: Colors.red),
                           onPressed: () {

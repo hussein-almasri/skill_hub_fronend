@@ -10,10 +10,16 @@ class SubmissionRemoteDatasource {
 
   Future<void> submitFlag(SubmissionModel model) async {
 
-    await dio.post(
+    final response = await dio.post(
       ApiConstants.submitFlag,
       data: model.toJson(),
     );
+
+    final correct = response.data["correct"];
+
+    if (correct != true) {
+      throw Exception("Wrong flag");
+    }
 
   }
 

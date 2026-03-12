@@ -132,7 +132,6 @@ class _CreateChallengeScreenState extends State<CreateChallengeScreen> {
                     decoration: const InputDecoration(labelText: "Category"),
                   ),
 
-                  /// flag يظهر فقط عند الإنشاء
                   if (!isEdit)
                     TextField(
                       controller: flagController,

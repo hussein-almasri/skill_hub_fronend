@@ -57,297 +57,292 @@ class _ChallengeDetailsScreenState extends State<ChallengeDetailsScreen> {
 
             return Padding(
               padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
 
-                  /// Title
-                  Text(
-                    challenge.title,
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-
-                  const SizedBox(height: 10),
-
-                  /// Difficulty + Points
-                  Row(
-                    children: [
-
-                      Chip(
-                        label: Text(
-                          challenge.difficulty,
-                        ),
+                    Text(
+                      challenge.title,
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
                       ),
-
-                      const SizedBox(width: 10),
-
-                      Chip(
-                        label: Text(
-                          "${challenge.points} pts",
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  /// Description
-                  Text(
-                    challenge.description,
-                    style: const TextStyle(fontSize: 16),
-                  ),
-
-                  const SizedBox(height: 10),
-
-                  /// Solved Count
-                  Text(
-                    "Solved by ${challenge.solvedCount} users",
-                    style: const TextStyle(
-                      color: Colors.grey,
-                      fontSize: 14,
                     ),
-                  ),
 
-                  const SizedBox(height: 20),
+                    const SizedBox(height: 10),
 
-                  /// Hints Button
-                  ElevatedButton(
+                    Row(
+                      children: [
 
-                    onPressed: () {
+                        Chip(
+                          label: Text(
+                            challenge.difficulty,
+                          ),
+                        ),
 
-                      context.read<HintsCubit>().fetchHints(widget.challengeId);
+                        const SizedBox(width: 10),
 
-                      showModalBottomSheet(
+                        Chip(
+                          label: Text(
+                            "${challenge.points} pts",
+                          ),
+                        ),
+                      ],
+                    ),
 
-                        context: context,
+                    const SizedBox(height: 20),
 
-                        builder: (_) {
+                    Text(
+                      challenge.description,
+                      style: const TextStyle(fontSize: 16),
+                    ),
 
-                          return BlocBuilder<HintsCubit, HintsState>(
+                    const SizedBox(height: 10),
 
-                            builder: (context, state) {
+                    Text(
+                      "Solved by ${challenge.solvedCount} users",
+                      style: const TextStyle(
+                        color: Colors.grey,
+                        fontSize: 14,
+                      ),
+                    ),
 
-                              if (state is HintsLoading) {
-                                return const Center(
-                                  child: CircularProgressIndicator(),
-                                );
-                              }
+                    const SizedBox(height: 20),
 
-                              if (state is HintsLoaded) {
+                    ElevatedButton(
 
-                                return ListView.builder(
+                      onPressed: () {
 
-                                  itemCount: state.hints.length,
+                        context.read<HintsCubit>().fetchHints(widget.challengeId);
 
-                                  itemBuilder: (context, index) {
+                        showModalBottomSheet(
 
-                                    final hint = state.hints[index];
+                          context: context,
 
-                                    return ListTile(
+                          builder: (_) {
 
-                                      title: Text("Hint ${index + 1}"),
+                            return BlocBuilder<HintsCubit, HintsState>(
 
-                                      subtitle: Text(
-                                        hint.unlocked
-                                            ? "Unlocked"
-                                            : "Cost: ${hint.cost}",
-                                      ),
+                              builder: (context, state) {
 
-                                      trailing: Icon(
-                                        hint.unlocked
-                                            ? Icons.check_circle
-                                            : Icons.lock,
-                                        color: hint.unlocked
-                                            ? Colors.green
-                                            : Colors.grey,
-                                      ),
+                                if (state is HintsLoading) {
+                                  return const Center(
+                                    child: CircularProgressIndicator(),
+                                  );
+                                }
 
-                                      onTap: () async {
+                                if (state is HintsLoaded) {
 
-                                        if (hint.unlocked) {
+                                  return ListView.builder(
+
+                                    itemCount: state.hints.length,
+
+                                    itemBuilder: (context, index) {
+
+                                      final hint = state.hints[index];
+
+                                      return ListTile(
+
+                                        title: Text("Hint ${index + 1}"),
+
+                                        subtitle: Text(
+                                          hint.unlocked
+                                              ? "Unlocked"
+                                              : "Cost: ${hint.cost}",
+                                        ),
+
+                                        trailing: Icon(
+                                          hint.unlocked
+                                              ? Icons.check_circle
+                                              : Icons.lock,
+                                          color: hint.unlocked
+                                              ? Colors.green
+                                              : Colors.grey,
+                                        ),
+
+                                        onTap: () async {
+
+                                          if (hint.unlocked) {
+
+                                            showDialog(
+                                              context: context,
+                                              builder: (_) => AlertDialog(
+                                                title: const Text("Hint"),
+                                                content: Text(hint.hintText ?? ""),
+                                              ),
+                                            );
+
+                                            return;
+                                          }
 
                                           showDialog(
                                             context: context,
                                             builder: (_) => AlertDialog(
-                                              title: const Text("Hint"),
-                                              content: Text(hint.hintText ?? ""),
+
+                                              title: const Text("Unlock Hint"),
+
+                                              content: Text(
+                                                "This hint costs ${hint.cost} points.\nDo you want to unlock it?",
+                                              ),
+
+                                              actions: [
+
+                                                TextButton(
+                                                  onPressed: () {
+                                                    Navigator.pop(context);
+                                                  },
+                                                  child: const Text("Cancel"),
+                                                ),
+
+                                                ElevatedButton(
+                                                  onPressed: () async {
+
+                                                    Navigator.pop(context);
+
+                                                    final hintText = await context
+                                                        .read<HintsCubit>()
+                                                        .unlockHint(hint.id);
+
+                                                    context.read<UserCubit>().fetchStats();
+
+                                                    showDialog(
+                                                      context: context,
+                                                      builder: (_) => AlertDialog(
+                                                        title: const Text("Hint"),
+                                                        content: Text(hintText),
+                                                      ),
+                                                    );
+
+                                                  },
+                                                  child: const Text("Unlock"),
+                                                )
+
+                                              ],
                                             ),
                                           );
 
-                                          return;
-                                        }
+                                        },
 
-                                        showDialog(
-                                          context: context,
-                                          builder: (_) => AlertDialog(
+                                      );
 
-                                            title: const Text("Unlock Hint"),
+                                    },
 
-                                            content: Text(
-                                              "This hint costs ${hint.cost} points.\nDo you want to unlock it?",
-                                            ),
+                                  );
 
-                                            actions: [
+                                }
 
-                                              TextButton(
-                                                onPressed: () {
-                                                  Navigator.pop(context);
-                                                },
-                                                child: const Text("Cancel"),
-                                              ),
+                                return const SizedBox();
 
-                                              ElevatedButton(
-                                                onPressed: () async {
+                              },
 
-                                                  Navigator.pop(context);
-
-                                                  final hintText = await context
-                                                      .read<HintsCubit>()
-                                                      .unlockHint(hint.id);
-
-                                                  showDialog(
-                                                    context: context,
-                                                    builder: (_) => AlertDialog(
-                                                      title: const Text("Hint"),
-                                                      content: Text(hintText),
-                                                    ),
-                                                  );
-
-                                                },
-                                                child: const Text("Unlock"),
-                                              )
-
-                                            ],
-                                          ),
-                                        );
-
-                                      },
-
-                                    );
-
-                                  },
-
-                                );
-
-                              }
-
-                              return const SizedBox();
-
-                            },
-
-                          );
-
-                        },
-
-                      );
-
-                    },
-
-                    child: const Text("Hints"),
-
-                  ),
-
-                  const SizedBox(height: 30),
-
-                  /// Flag Input
-                  TextField(
-                    controller: flagController,
-                    decoration: const InputDecoration(
-                      labelText: "Enter Flag",
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  /// Submit Button
-                  BlocConsumer<SubmissionCubit, SubmissionState>(
-
-                    listener: (context, state) {
-
-                      if (state is SubmissionSuccess) {
-
-                        context.read<ChallengesCubit>()
-                            .markSolved(state.challengeId);
-
-                        /// Update leaderboard
-                        context.read<LeaderboardCubit>().fetchLeaderboard();
-
-                        /// Update user points
-                        context.read<UserCubit>().fetchStats();
-
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            backgroundColor: Colors.green,
-                            content: Text("Correct Flag 🎉"),
-                          ),
-                        );
-
-                      }
-
-                      if (state is SubmissionError) {
-
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            backgroundColor: Colors.red,
-                            content: Text("Wrong Flag ❌"),
-                          ),
-                        );
-
-                      }
-
-                    },
-
-                    builder: (context, state) {
-
-                      if (state is SubmissionLoading) {
-                        return const Center(
-                          child: CircularProgressIndicator(),
-                        );
-                      }
-
-                      return SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-
-                          onPressed: () {
-
-                            final solved = context
-                                .read<ChallengesCubit>()
-                                .solvedChallenges
-                                .contains(widget.challengeId);
-
-                            if (solved) {
-
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  backgroundColor: Colors.orange,
-                                  content: Text("Challenge already solved ✔"),
-                                ),
-                              );
-
-                              return;
-                            }
-
-                            final flag = flagController.text;
-
-                            context.read<SubmissionCubit>().submit(
-                              widget.challengeId,
-                              flag,
                             );
 
                           },
 
-                          child: const Text("Submit Flag"),
-                        ),
-                      );
+                        );
 
-                    },
-                  )
-                ],
+                      },
+
+                      child: const Text("Hints"),
+
+                    ),
+
+                    const SizedBox(height: 30),
+
+                    TextField(
+                      controller: flagController,
+                      decoration: const InputDecoration(
+                        labelText: "Enter Flag",
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    BlocConsumer<SubmissionCubit, SubmissionState>(
+
+                      listener: (context, state) {
+
+                        if (state is SubmissionSuccess) {
+
+                          context.read<ChallengesCubit>()
+                              .markSolved(state.challengeId);
+
+                          context.read<LeaderboardCubit>().fetchLeaderboard();
+
+                          context.read<UserCubit>().fetchStats();
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              backgroundColor: Colors.green,
+                              content: Text("Correct Flag 🎉"),
+                            ),
+                          );
+
+                        }
+
+                        if (state is SubmissionError) {
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              backgroundColor: Colors.red,
+                              content: Text("Wrong Flag ❌"),
+                            ),
+                          );
+
+                        }
+
+                      },
+
+                      builder: (context, state) {
+
+                        if (state is SubmissionLoading) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+
+                        return SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+
+                            onPressed: () {
+
+                              final solved = context
+                                  .read<ChallengesCubit>()
+                                  .solvedChallenges
+                                  .contains(widget.challengeId);
+
+                              if (solved) {
+
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    backgroundColor: Colors.orange,
+                                    content: Text("Challenge already solved ✔"),
+                                  ),
+                                );
+
+                                return;
+                              }
+
+                              final flag = flagController.text;
+
+                              context.read<SubmissionCubit>().submit(
+                                widget.challengeId,
+                                flag,
+                              );
+
+                            },
+
+                            child: const Text("Submit Flag"),
+                          ),
+                        );
+
+                      },
+                    )
+                  ],
+                ),
               ),
             );
           }

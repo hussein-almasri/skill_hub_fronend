@@ -1,6 +1,10 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:dio/dio.dart';
+
 import '../../domain/entities/challenge.dart';
 import '../../domain/usecases/get_challenges_usecase.dart';
+import '../../core/constants/api_constants.dart';
+import '../../core/network/dio_client.dart';
 
 abstract class ChallengesState {}
 
@@ -20,8 +24,9 @@ class ChallengesCubit extends Cubit<ChallengesState> {
 
   final GetChallengesUseCase getChallengesUseCase;
 
-  /// solved challenges ids
   final Set<int> solvedChallenges = {};
+
+  final Dio dio = DioClient().dio;
 
   ChallengesCubit(this.getChallengesUseCase) : super(ChallengesInitial());
 
@@ -33,6 +38,8 @@ class ChallengesCubit extends Cubit<ChallengesState> {
 
       final challenges = await getChallengesUseCase();
 
+      await _fetchSolvedChallenges();
+
       emit(ChallengesLoaded(challenges));
 
     } catch (e) {
@@ -41,15 +48,36 @@ class ChallengesCubit extends Cubit<ChallengesState> {
 
     }
   }
+
+  Future<void> _fetchSolvedChallenges() async {
+
+    try {
+
+      final response = await dio.get(
+        "${ApiConstants.baseUrl}/users/solved-challenges",
+      );
+
+      final List data = response.data;
+
+      solvedChallenges.clear();
+
+      for (var id in data) {
+        solvedChallenges.add(id);
+      }
+
+    } catch (_) {}
+  }
+
   void markSolved(int challengeId) {
 
-  solvedChallenges.add(challengeId);
+    solvedChallenges.add(challengeId);
 
-  if (state is ChallengesLoaded) {
+    if (state is ChallengesLoaded) {
 
-    emit(ChallengesLoaded((state as ChallengesLoaded).challenges));
+      emit(ChallengesLoaded((state as ChallengesLoaded).challenges));
+
+    }
 
   }
 
-}
 }

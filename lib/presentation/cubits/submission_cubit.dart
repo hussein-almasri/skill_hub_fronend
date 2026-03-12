@@ -1,7 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../domain/usecases/submit_flag_usecase.dart';
 
-/// STATES
 abstract class SubmissionState {}
 
 class SubmissionInitial extends SubmissionState {}
@@ -20,7 +19,6 @@ class SubmissionError extends SubmissionState {
   SubmissionError(this.message);
 }
 
-/// CUBIT
 class SubmissionCubit extends Cubit<SubmissionState> {
 
   final SubmitFlagUseCase submitFlagUseCase;
@@ -33,7 +31,12 @@ class SubmissionCubit extends Cubit<SubmissionState> {
 
     try {
 
-      await submitFlagUseCase(challengeId, flag);
+      final cleanedFlag = flag.trim();
+
+      await submitFlagUseCase(
+        challengeId,
+        cleanedFlag,
+      );
 
       emit(SubmissionSuccess(challengeId));
 
